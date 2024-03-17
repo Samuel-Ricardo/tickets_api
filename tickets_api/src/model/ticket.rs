@@ -7,6 +7,7 @@ pub struct Ticket {
     pub title: String,
 }
 
+/* Create Ticket DTO */
 #[derive(Deserialize)]
 pub struct TicketForCreate {
     pub title: String,
