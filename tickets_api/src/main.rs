@@ -1,3 +1,9 @@
+mod controller;
+mod ctx;
+mod model;
+mod router;
+mod server;
+
 use axum::{response::Html, routing::get, Router};
 use tokio::net::TcpListener;
 
