@@ -1,8 +1,9 @@
 use anyhow::Ok;
+use std::arch::asm;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use crate::error::Result;
+use crate::error::{Error, Result};
 
 use crate::{
     ctx::CTX,
@@ -45,5 +46,13 @@ impl TicketController {
         let tickets = store.iter().filter_map(|t| t.clone()).collect();
 
         Ok(tickets);
+    }
+
+    pub async fn delete_ticket(&self, _ctx: CTX, id: u64) -> Result<Ticket> {
+        let mut store = self.tickets_store.lock().await;
+
+        let ticket = store.get_mut(id as usize).and_then(|t| t.take());
+
+        ticket.ok_or(Error::TicketDeleteFailIdNotFound { id })
     }
 }
