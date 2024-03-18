@@ -1,3 +1,5 @@
+mod ticket;
+
 use axum::{http::StatusCode, response::Response};
 
 pub async fn hello_handler() -> Response<String> {
