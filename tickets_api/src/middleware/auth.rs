@@ -1,12 +1,15 @@
-use axum::extract::{FromRequest, FromRequestParts};
+use anyhow::Ok;
+use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum::{body::Body, extract::State, http::Request, middleware::Next, response::Response};
 use lazy_regex::regex_captures;
-use tower_cookies::Cookies;
+use tower_cookies::{Cookie, Cookies};
 
 use crate::controller::ticket::TicketController;
 use crate::error::Error;
 use crate::{ctx::CTX, error::Result};
+
+use async_trait::async_trait;
 
 pub const AUTH_TOKEN: &str = "auth-token";
 
@@ -35,8 +38,17 @@ pub async fn mw_ctx_resolver(
         Ok((user_id, _exp, _sign)) => Ok(CTX::new(user_id)),
         Err(e) => Err(e),
     };
+
+    if result_ctx.is_err() && !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie)) {
+        cookies.remove(Cookie::from(AUTH_TOKEN));
+    }
+
+    req.extensions_mut().insert(result_ctx);
+
+    Ok(next.run(req).await)
 }
 
+//#[async_trait]
 impl<S: Send + Sync> FromRequestParts<S> for CTX {
     type Rejection = Error;
 
