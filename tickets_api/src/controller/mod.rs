@@ -1,4 +1,5 @@
-mod ticket;
+pub mod login;
+pub mod ticket;
 
 use axum::{http::StatusCode, response::Response};
 
