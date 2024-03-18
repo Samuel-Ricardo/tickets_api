@@ -21,3 +21,20 @@ impl TicketController {
         })
     }
 }
+
+impl TicketController {
+    pub async fn create_ticket(&self, ctx: CTX, ticket_fc: TicketForCreate) -> Result<Ticket> {
+        let mut store = self.tickets_store.lock().await;
+
+        let id = store.len() as u64;
+        let ticket = Ticket {
+            id,
+            cid: ctx.user_id(),
+            title: ticket_fc.title,
+        };
+
+        store.push(Some(ticket.clone()));
+
+        Ok(ticket)
+    }
+}
