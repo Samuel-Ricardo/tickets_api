@@ -1,3 +1,4 @@
+use anyhow::Ok;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -36,5 +37,13 @@ impl TicketController {
         store.push(Some(ticket.clone()));
 
         Ok(ticket)
+    }
+
+    pub async fn list_tickets(&self, _ctx: CTX) -> Result<Vec<Ticket>> {
+        let store = self.tickets_store.lock().await;
+
+        let tickets = store.iter().filter_map(|t| t.clone()).collect();
+
+        Ok(tickets);
     }
 }
