@@ -34,3 +34,14 @@ pub async fn delete_ticket(
 
     Ok(Json(ticket))
 }
+
+pub async fn list_tickets(
+    State(controller): State<TicketController>,
+    ctx: CTX,
+) -> Result<Json<Vec<Ticket>>> {
+    println!("->> {:<12} - get_ticket", "HANDLER");
+
+    let ticket = controller.list_tickets(ctx).await?;
+
+    Ok(Json(ticket))
+}
