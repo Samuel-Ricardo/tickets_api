@@ -1,5 +1,8 @@
 mod controller;
 mod ctx;
+mod error;
+mod log;
+mod middleware;
 mod model;
 mod router;
 mod server;

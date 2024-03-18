@@ -9,7 +9,7 @@ use crate::controller::ticket::TicketController;
 use crate::error::Error;
 use crate::{ctx::CTX, error::Result};
 
-use async_trait::async_trait;
+//use async_trait::async_trait;
 
 pub const AUTH_TOKEN: &str = "auth-token";
 
