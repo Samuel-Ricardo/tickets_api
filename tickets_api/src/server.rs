@@ -1,13 +1,28 @@
-use axum::Router;
+use axum::{middleware, Router};
 use tokio::net::TcpListener;
 
-use crate::router::hello_router;
+use crate::controller::ticket::TicketController;
+use crate::error::Result;
+use crate::middleware::auth::mw_ctx_resolver;
+use crate::middleware::response::main_response_mapper;
+use crate::router::{self, hello_router, login, tickets};
 
 #[tokio::main]
 pub async fn startup() -> Result<()> {
-    const routes: Router = Router::new().merge(hello_router());
+    let controller = TicketController::new().await.unwrap();
 
-    const listener: TcpListener = TcpListener::bind("127.0.0.1:8080")
+    let routes: Router = Router::new()
+        .merge(hello_router())
+        .merge(login::routes())
+        .nest("/api", tickets::routes(controller.clone()))
+        .layer(middleware::map_response(main_response_mapper))
+        .layer(middleware::from_fn_with_state(
+            controller.clone(),
+            mw_ctx_resolver,
+        ))
+        .fallback_service(router::statics());
+
+    let listener: TcpListener = TcpListener::bind("127.0.0.1:8080")
         .await
         .expect("Failed to bind port 8080");
 
