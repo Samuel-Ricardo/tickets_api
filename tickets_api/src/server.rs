@@ -23,7 +23,7 @@ pub async fn startup() -> Result<()> {
         .layer(CookieManagerLayer::new())
         .fallback_service(router::statics());
 
-    let listener: TcpListener = TcpListener::bind("127.0.0.1:8080")
+    let listener: TcpListener = TcpListener::bind("localhost:8080")
         .await
         .expect("Failed to bind port 8080");
 
