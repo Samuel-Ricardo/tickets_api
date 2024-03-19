@@ -46,7 +46,7 @@ pub async fn log_request(
 
     println!("LOG_REQEST: \n{}", json!(log_line));
 
-    Ok(());
+    Ok(())
 }
 
 #[skip_serializing_none]

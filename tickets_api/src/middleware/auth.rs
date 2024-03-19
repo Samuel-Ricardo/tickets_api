@@ -1,4 +1,3 @@
-use anyhow::Ok;
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum::{body::Body, extract::State, http::Request, middleware::Next, response::Response};
@@ -9,7 +8,7 @@ use crate::controller::ticket::TicketController;
 use crate::error::Error;
 use crate::{ctx::CTX, error::Result};
 
-//use async_trait::async_trait;
+use async_trait::async_trait;
 
 pub const AUTH_TOKEN: &str = "auth-token";
 
@@ -48,7 +47,7 @@ pub async fn mw_ctx_resolver(
     Ok(next.run(req).await)
 }
 
-//#[async_trait]
+#[async_trait]
 impl<S: Send + Sync> FromRequestParts<S> for CTX {
     type Rejection = Error;
 
@@ -59,7 +58,7 @@ impl<S: Send + Sync> FromRequestParts<S> for CTX {
             .extensions
             .get::<Result<CTX>>()
             .ok_or(Error::AuthFailCtxNotInRequestExt)?
-            .clone();
+            .clone()
     }
 }
 

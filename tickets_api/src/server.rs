@@ -1,5 +1,6 @@
 use axum::{middleware, Router};
 use tokio::net::TcpListener;
+use tower_cookies::CookieManagerLayer;
 
 use crate::controller::ticket::TicketController;
 use crate::error::Result;
@@ -7,7 +8,6 @@ use crate::middleware::auth::mw_ctx_resolver;
 use crate::middleware::response::main_response_mapper;
 use crate::router::{self, hello_router, login, tickets};
 
-#[tokio::main]
 pub async fn startup() -> Result<()> {
     let controller = TicketController::new().await.unwrap();
 
@@ -20,6 +20,7 @@ pub async fn startup() -> Result<()> {
             controller.clone(),
             mw_ctx_resolver,
         ))
+        .layer(CookieManagerLayer::new())
         .fallback_service(router::statics());
 
     let listener: TcpListener = TcpListener::bind("127.0.0.1:8080")

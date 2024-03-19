@@ -1,5 +1,4 @@
-use std::sync::Arc;
-use tokio::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use crate::error::{Error, Result};
 
@@ -24,7 +23,7 @@ impl TicketController {
 
 impl TicketController {
     pub async fn create_ticket(&self, ctx: CTX, ticket_fc: TicketForCreate) -> Result<Ticket> {
-        let mut store = self.tickets_store.lock().await;
+        let mut store = self.tickets_store.lock().unwrap();
 
         let id = store.len() as u64;
         let ticket = Ticket {
@@ -39,15 +38,15 @@ impl TicketController {
     }
 
     pub async fn list_tickets(&self, _ctx: CTX) -> Result<Vec<Ticket>> {
-        let store = self.tickets_store.lock().await;
+        let store = self.tickets_store.lock().unwrap();
 
         let tickets = store.iter().filter_map(|t| t.clone()).collect();
 
-        Ok(tickets);
+        Ok(tickets)
     }
 
     pub async fn delete_ticket(&self, _ctx: CTX, id: u64) -> Result<Ticket> {
-        let mut store = self.tickets_store.lock().await;
+        let mut store = self.tickets_store.lock().unwrap();
 
         let ticket = store.get_mut(id as usize).and_then(|t| t.take());
 
