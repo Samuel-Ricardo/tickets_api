@@ -4,6 +4,7 @@ use axum::{
     Json,
 };
 use serde_json::json;
+use tracing::debug;
 use uuid::Uuid;
 
 use crate::{ctx::CTX, error::Error, log::log_request};
@@ -31,13 +32,13 @@ pub async fn main_response_mapper(
                 }
             });
 
-            debug!("{:<12} client_error_body: {client_error_body}");
+            debug!("client_error_body: {client_error_body}");
 
             (*status_code, Json(client_error_body)).into_response()
         });
 
     let client_error = client_status_error.unzip().1;
-    let _ = log_request(uuid, req_method, uri, ctx, service_error, client_error).await
+    let _ = log_request(uuid, req_method, uri, ctx, service_error, client_error).await;
 
     error_response.unwrap_or(res)
 }

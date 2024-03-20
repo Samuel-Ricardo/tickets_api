@@ -3,6 +3,7 @@ use axum::http::request::Parts;
 use axum::{body::Body, extract::State, http::Request, middleware::Next, response::Response};
 use lazy_regex::regex_captures;
 use tower_cookies::{Cookie, Cookies};
+use tracing::debug;
 
 use crate::controller::ticket::TicketController;
 use crate::error::Error;
