@@ -9,7 +9,9 @@ mod observability;
 mod router;
 mod server;
 
-use error::Result;
+pub use self::config::Config;
+pub use self::error::{Error, Result};
+
 use server::startup;
 
 #[tokio::main]
