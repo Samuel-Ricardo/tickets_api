@@ -1,5 +1,4 @@
-use server::startup;
-
+mod config;
 mod controller;
 mod ctx;
 mod error;
@@ -11,6 +10,7 @@ mod router;
 mod server;
 
 use error::Result;
+use server::startup;
 
 #[tokio::main]
 async fn main() -> Result<()> {
