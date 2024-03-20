@@ -9,7 +9,7 @@ mod observability;
 mod router;
 mod server;
 
-pub use self::config::Config;
+pub use self::config::config;
 pub use self::error::{Error, Result};
 
 use server::startup;

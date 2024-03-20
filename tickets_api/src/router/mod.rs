@@ -7,12 +7,12 @@ use axum::{
 };
 use tower_http::services::ServeDir;
 
-use crate::controller::hello_handler;
+use crate::{config, controller::hello_handler};
 
 pub fn hello_router() -> Router {
     Router::new().route("/", get(hello_handler))
 }
 
 pub fn statics() -> Router {
-    Router::new().nest_service("/", get_service(ServeDir::new("./")))
+    Router::new().nest_service("/", get_service(ServeDir::new(&config().WEB_FOLDER)))
 }
