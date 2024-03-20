@@ -13,7 +13,7 @@ use async_trait::async_trait;
 pub const AUTH_TOKEN: &str = "auth-token";
 
 pub async fn mw_require_auth(ctx: Result<CTX>, req: Request<Body>, next: Next) -> Result<Response> {
-    println!("->> {:<12} - mw_require_auth - {ctx:?}", "MIDDLEWARE");
+    debug!(" {:<12} - mw_require_auth - {ctx:?}", "MIDDLEWARE");
 
     ctx?;
 
@@ -26,7 +26,7 @@ pub async fn mw_ctx_resolver(
     mut req: Request<Body>,
     next: Next,
 ) -> Result<Response> {
-    println!("->> {:<12} - mw_ctx_resolver", "MIDDLEWARE");
+    debug!(" {:<12} - mw_ctx_resolver", "MIDDLEWARE");
 
     let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
 
@@ -52,7 +52,7 @@ impl<S: Send + Sync> FromRequestParts<S> for CTX {
     type Rejection = Error;
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self> {
-        println!("->> {:<12} - CTX", "EXTRACTOR");
+        debug!(" {:<12} - CTX", "EXTRACTOR");
 
         parts
             .extensions

@@ -14,7 +14,7 @@ pub async fn main_response_mapper(
     req_method: Method,
     res: Response,
 ) -> Response {
-    println!("->> {:<12} - main_response_mapper", "RES_MAPPER");
+    debug!(" {:<12} - main_response_mapper", "RES_MAPPER");
 
     let uuid: Uuid = Uuid::new_v4();
 
@@ -31,14 +31,13 @@ pub async fn main_response_mapper(
                 }
             });
 
-            println!("    ->> client_error_body: {client_error_body}");
+            debug!("{:<12} client_error_body: {client_error_body}");
 
             (*status_code, Json(client_error_body)).into_response()
         });
 
     let client_error = client_status_error.unzip().1;
-    let _ = log_request(uuid, req_method, uri, ctx, service_error, client_error).await;
+    let _ = log_request(uuid, req_method, uri, ctx, service_error, client_error).await
 
-    println!();
     error_response.unwrap_or(res)
 }

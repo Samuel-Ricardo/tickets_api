@@ -1,6 +1,7 @@
 use axum::{middleware, Router};
 use tokio::net::TcpListener;
 use tower_cookies::CookieManagerLayer;
+use tracing::info;
 
 use crate::controller::ticket::TicketController;
 use crate::error::Result;
@@ -30,7 +31,7 @@ pub async fn startup() -> Result<()> {
         .await
         .expect("Failed to bind port 8080");
 
-    println!("Server running on 0.0.0.0:8080");
+    info!("Server running on 0.0.0.0:8080");
     axum::serve(listener, routes.into_make_service())
         .await
         .unwrap();

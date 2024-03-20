@@ -12,7 +12,7 @@ pub async fn api_login_handler(
     cookies: Cookies,
     payload: Json<LoginPayload>,
 ) -> Result<Json<Value>> {
-    println!("->> {:<12} - api_login", "HANDLER");
+    debug!(" {:<12} - api_login", "HANDLER");
 
     if payload.username != "samuel" || payload.pwd != "123" {
         return Err(Error::LoginFail);

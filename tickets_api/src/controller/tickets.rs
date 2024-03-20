@@ -2,6 +2,7 @@ use axum::{
     extract::{Path, State},
     Json,
 };
+use tracing::debug;
 
 use crate::{
     ctx::CTX,
@@ -16,7 +17,7 @@ pub async fn create_ticket(
     ctx: CTX,
     Json(ticket_fc): Json<TicketForCreate>,
 ) -> Result<Json<Ticket>> {
-    println!("->> {:<12} - create_ticket", "HANDLER");
+    debug!(" {:<12} - create_ticket", "HANDLER");
 
     let ticket = controller.create_ticket(ctx, ticket_fc).await?;
 
@@ -28,7 +29,7 @@ pub async fn delete_ticket(
     ctx: CTX,
     Path(id): Path<u64>,
 ) -> Result<Json<Ticket>> {
-    println!(">>> {:<12} - delete_ticket", "HANDLER");
+    debug!("{:<12} - delete_ticket", "HANDLER");
 
     let ticket = controller.delete_ticket(ctx, id).await?;
 
@@ -39,7 +40,7 @@ pub async fn list_tickets(
     State(controller): State<TicketController>,
     ctx: CTX,
 ) -> Result<Json<Vec<Ticket>>> {
-    println!("->> {:<12} - get_ticket", "HANDLER");
+    debug!(" {:<12} - get_ticket", "HANDLER");
 
     let ticket = controller.list_tickets(ctx).await?;
 
