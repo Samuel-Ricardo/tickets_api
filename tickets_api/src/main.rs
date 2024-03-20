@@ -6,6 +6,7 @@ mod error;
 mod log;
 mod middleware;
 mod model;
+mod observability;
 mod router;
 mod server;
 
