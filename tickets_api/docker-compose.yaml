@@ -5,3 +5,15 @@ services:
     build: .
     ports:
       - "8080:8080"
+    environment:
+      - RUST_LOG=tickets_api=debug
+      - SERVICE_WEB_FOLDER=web-folder/
+
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: welcome
+      POSTGRES_DB: postgres
