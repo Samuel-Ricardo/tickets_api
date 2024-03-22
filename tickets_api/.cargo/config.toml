@@ -19,9 +19,14 @@ RUST_LOG = "tickets_api=debug"
 # e.g., "welcome" type of passwords.
 # i.e., Encryption not needed.
 
+SERVICE_DB_URL="postgresql://app_user:dev_only_pwd@localhost:5432/app_db"
+
 
 ## -- ConfigMap
 
 # This will be relative to Cargo.toml
 # In deployed images, probably use absolute path.
 SERVICE_WEB_FOLDER = "web-folder/"
+
+
+
