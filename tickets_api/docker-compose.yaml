@@ -3,17 +3,29 @@ version: "3.8"
 services:
   api:
     build: .
+    #    command: "cargo test"
     ports:
       - "8080:8080"
     environment:
       - RUST_LOG=tickets_api=debug
       - SERVICE_WEB_FOLDER=web-folder/
+    depends_on:
+      - db_test
 
-  db:
+  #  db:
+  #   image: postgres
+  #  ports:
+  #    - "5432:5432"
+  #  environment:
+  #     POSTGRES_USER: postgres
+  #  POSTGRES_PASSWORD: welcome
+  #     POSTGRES_DB: postgres
+
+  db_test:
     image: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: welcome
-      POSTGRES_DB: postgres
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: dev_only_pwd
+      POSTGRES_DB: app_db
