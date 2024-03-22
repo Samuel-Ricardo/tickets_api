@@ -1,3 +1,5 @@
+use crate::service;
+
 use self::store::{new_db_pool, DB};
 
 pub mod error;
@@ -8,6 +10,7 @@ pub mod ticket;
 
 use error::Result;
 
+#[derive(Clone)]
 pub struct ModelManager {
     db: DB,
 }
@@ -19,7 +22,8 @@ impl ModelManager {
     }
 
     // INFO: Returns the SQLX DB Pool Reference [Only for the Model Layer]
-    pub(in crate::model) fn db(&self) -> &DB {
+    //    pub(in super::model) fn db(&self) -> &DB {
+    pub fn db(&self) -> &DB {
         &self.db
     }
 }

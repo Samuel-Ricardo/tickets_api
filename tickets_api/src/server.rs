@@ -7,11 +7,14 @@ use crate::controller::ticket::TicketController;
 use crate::error::Result;
 use crate::middleware::auth::mw_ctx_resolver;
 use crate::middleware::response::main_response_mapper;
-use crate::observability;
+use crate::model::ModelManager;
 use crate::router::{self, hello_router, login, tickets};
+use crate::{_dev_utils, observability};
 
 pub async fn startup() -> Result<()> {
     let _ = observability::startup();
+    let _ = _dev_utils::init_dev();
+    let manager = ModelManager::new().await;
 
     let controller = TicketController::new().await.unwrap();
 
