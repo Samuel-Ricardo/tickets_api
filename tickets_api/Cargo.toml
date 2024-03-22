@@ -37,3 +37,5 @@ lazy-regex = "3"
 
 [dev-dependencies]
 anyhow = "1"
+httpc-test = "0.1"
+serial_test = "3"
