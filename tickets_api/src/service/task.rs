@@ -2,7 +2,7 @@ use crate::base;
 use crate::base::db::DbBmc;
 use crate::ctx::CTX;
 use crate::model::error::Result;
-use crate::model::task::{Task, TaskForCreate};
+use crate::model::task::{Task, TaskForCreate, TaskForUpdate};
 use crate::model::ModelManager;
 
 pub struct TaskService;
@@ -24,24 +24,17 @@ impl TaskService {
         base::db::list::<Self, Task>(ctx, manager).await
     }
 
-    pub async fn update(ctx: &CTX, manager: &ModelManager, id: i64, task_u: Task) -> Result<()> {
+    pub async fn update(
+        ctx: &CTX,
+        manager: &ModelManager,
+        id: i64,
+        task_u: TaskForUpdate,
+    ) -> Result<()> {
         base::db::update::<Self, _>(ctx, manager, id, task_u).await
     }
 
-    pub async fn delete(_ctx: &CTX, manager: &ModelManager, id: i64) -> Result<()> {
-        let db = manager.db();
-
-        let count = sqlx::query("DELETE FROM tasks WHERE id = $1")
-            .bind(id)
-            .execute(db)
-            .await?
-            .rows_affected();
-
-        if count == 0 {
-            return Err(crate::model::error::Error::EntityNotFound { entity: "task", id });
-        }
-
-        Ok(())
+    pub async fn delete(ctx: &CTX, manager: &ModelManager, id: i64) -> Result<()> {
+        base::db::delete::<Self>(ctx, manager, id).await
     }
 }
 
@@ -75,6 +68,32 @@ mod tests {
 
         // INFO: delete the created task
         TaskService::delete(&ctx, &manager, id).await?;
+
+        Ok(())
+    }
+
+    async fn test_update() -> Result<()> {
+        let manager = _dev_utils::init_test_db().await;
+        let ctx = CTX::root_ctx();
+        const fx_title: &str = "test_update - task 01";
+        const fx_title_new: &str = "test_update - task 01 - new";
+        let fx_task = _dev_utils::seed::task(&ctx, &manager, &[fx_title])
+            .await?
+            .remove(0);
+
+        TaskService::update(
+            &ctx,
+            &manager,
+            fx_task.id,
+            TaskForUpdate {
+                title: Some(fx_title_new.to_string()),
+            },
+        )
+        .await?;
+
+        let task = TaskService::get(&ctx, &manager, fx_task.id).await?;
+
+        assert_eq!(task.title, fx_title_new);
 
         Ok(())
     }
