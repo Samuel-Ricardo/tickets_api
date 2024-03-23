@@ -20,6 +20,7 @@ sqlx = { version = "0.7", features = [
   "uuid",
   "time",
 ] }
+sqlb = "0.4"
 # -- WEB -- #
 tower-http = { version = "0.5", features = ["fs"] }
 tower-cookies = "0.10"
@@ -32,7 +33,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # -- Others
 strum_macros = "0.26"
-uuid = { version = "1", features = ["v4", "fast-rng"] }
+uuid = { version = "1", features = ["v4", "fast-rng", "serde"] }
 lazy-regex = "3"
 
 [dev-dependencies]
