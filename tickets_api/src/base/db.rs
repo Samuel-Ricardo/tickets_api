@@ -71,7 +71,7 @@ where
     Ok(id)
 }
 
-pub async fn update<MC, E>(_ctx: &CTX, manager: &ModelManager, id: i64, entity: E) -> Result<i64>
+pub async fn update<MC, E>(_ctx: &CTX, manager: &ModelManager, id: i64, entity: E) -> Result<()>
 where
     MC: DbBmc,
     E: HasFields,
@@ -91,6 +91,28 @@ where
             id,
         })
     } else {
-        Ok(id)
+        Ok(())
+    }
+}
+
+pub async fn delete<MC>(_ctx: &CTX, manager: &ModelManager, id: i64) -> Result<()>
+where
+    MC: DbBmc,
+{
+    let db = manager.db();
+
+    let count = sqlb::delete()
+        .table(MC::TABLE)
+        .and_where("id", "=", id)
+        .exec(db)
+        .await?;
+
+    if count == 0 {
+        Err(Error::EntityNotFound {
+            entity: MC::TABLE,
+            id,
+        })
+    } else {
+        Ok(())
     }
 }
