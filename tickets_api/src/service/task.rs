@@ -1,3 +1,5 @@
+use crate::base;
+use crate::base::db::DbBmc;
 use crate::ctx::CTX;
 use crate::model::error::Result;
 use crate::model::task::{Task, TaskForCreate};
@@ -5,29 +7,17 @@ use crate::model::ModelManager;
 
 pub struct TaskService;
 
+impl DbBmc for TaskService {
+    const TABLE: &'static str = "tasks";
+}
+
 impl TaskService {
-    pub async fn create(_ctx: &CTX, manager: &ModelManager, task_c: TaskForCreate) -> Result<i64> {
-        let db = manager.db();
-
-        let (id,) =
-            sqlx::query_as::<_, (i64,)>("INSERT INTO tasks (title) VALUES ($1) RETURNING id")
-                .bind(task_c.title)
-                .fetch_one(db)
-                .await?;
-
-        Ok(id)
+    pub async fn create(ctx: &CTX, manager: &ModelManager, task_c: TaskForCreate) -> Result<i64> {
+        base::db::create::<Self, _>(ctx, manager, task_c).await
     }
 
-    pub async fn get(_ctx: &CTX, manager: &ModelManager, id: i64) -> Result<Task> {
-        let db = manager.db();
-
-        let task: Task = sqlx::query_as("SELECT * FROM tasks WHERE id = $1")
-            .bind(id)
-            .fetch_optional(db)
-            .await?
-            .ok_or(crate::model::error::Error::EntityNotFound { entity: "task", id })?;
-
-        Ok(task)
+    pub async fn get(ctx: &CTX, manager: &ModelManager, id: i64) -> Result<Task> {
+        base::db::get::<Self, Task>(ctx, manager, id).await
     }
 
     pub async fn list(_ctx: &CTX, manager: &ModelManager) -> Result<Vec<Task>> {
