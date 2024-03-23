@@ -29,6 +29,22 @@ impl TaskService {
 
         Ok(task)
     }
+
+    pub async fn delete(_ctx: &CTX, manager: &ModelManager, id: i64) -> Result<()> {
+        let db = manager.db();
+
+        let count = sqlx::query("DELETE FROM tasks WHERE id = $1")
+            .bind(id)
+            .execute(db)
+            .await?
+            .rows_affected();
+
+        if count == 0 {
+            return Err(crate::model::error::Error::EntityNotFound { entity: "task", id });
+        }
+
+        Ok(())
+    }
 }
 
 // INFO: REGION [tests]
