@@ -14,3 +14,7 @@ pub struct UserForCreate {
     pub name: String,
     pub pwd_clear: String,
 }
+
+struct UserForInsert {
+    name: String,
+}
