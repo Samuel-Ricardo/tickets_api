@@ -7,6 +7,7 @@ pub mod login;
 pub mod store;
 pub mod task;
 pub mod ticket;
+pub mod user;
 
 use error::Result;
 
