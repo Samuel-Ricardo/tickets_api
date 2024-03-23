@@ -70,3 +70,27 @@ where
 
     Ok(id)
 }
+
+pub async fn update<MC, E>(_ctx: &CTX, manager: &ModelManager, id: i64, entity: E) -> Result<i64>
+where
+    MC: DbBmc,
+    E: HasFields,
+{
+    let db = manager.db();
+
+    let count = sqlb::update()
+        .table(MC::TABLE)
+        .data(entity.not_none_fields())
+        .and_where("id", "=", id)
+        .exec(db)
+        .await?;
+
+    if count == 0 {
+        Err(Error::EntityNotFound {
+            entity: MC::TABLE,
+            id,
+        })
+    } else {
+        Ok(id)
+    }
+}
