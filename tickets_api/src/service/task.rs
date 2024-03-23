@@ -71,21 +71,12 @@ mod tests {
         let id = TaskService::create(&ctx, &manager, task_c).await?;
 
         // INFO: check the created task
-        let (title,): (String,) = sqlx::query_as("SELECT title FROM task WHERE id = $1")
-            .bind(id)
-            .fetch_one(manager.db())
-            .await?;
+        let task = TaskService::get(&ctx, &manager, id).await?;
 
-        assert_eq!(title, fixtures_title);
+        assert_eq!(task.title, fixtures_title);
 
         // INFO: delete the created task
-        let count = sqlx::query("DELETE FROM task WHERE id = $1")
-            .bind(id)
-            .execute(manager.db())
-            .await?
-            .rows_affected();
-
-        assert_eq!(count, 1);
+        TaskService::delete(&ctx, &manager, id).await?;
 
         Ok(())
     }
