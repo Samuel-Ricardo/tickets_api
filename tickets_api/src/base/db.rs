@@ -53,3 +53,20 @@ where
 
     Ok(entities)
 }
+
+pub async fn create<MC, E>(_ctx: &CTX, manager: &ModelManager, entity: E) -> Result<i64>
+where
+    MC: DbBmc,
+    E: HasFields,
+{
+    let db = manager.db();
+    let fields = entity.not_none_fields();
+    let (id,) = sqlb::insert()
+        .table(MC::TABLE)
+        .data(fields)
+        .returning(&["id"])
+        .fetch_one::<_, (i64,)>(db)
+        .await?;
+
+    Ok(id)
+}
