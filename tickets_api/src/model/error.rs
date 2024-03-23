@@ -10,6 +10,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     Store(store::Error),
     Sqlx(#[serde_as(as = "DisplayFromStr")] sqlx::Error),
+    EntityNotFound { entity: &'static str, id: i64 },
 }
 
 impl From<store::Error> for Error {
