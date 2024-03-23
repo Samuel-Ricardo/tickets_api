@@ -1,6 +1,6 @@
 use crate::ctx::CTX;
 use crate::model::error::Result;
-use crate::model::task::TaskForCreate;
+use crate::model::task::{Task, TaskForCreate};
 use crate::model::ModelManager;
 
 pub struct TaskService;
@@ -16,6 +16,18 @@ impl TaskService {
                 .await?;
 
         Ok(id)
+    }
+
+    pub async fn get(_ctx: &CTX, manager: &ModelManager, id: i64) -> Result<Task> {
+        let db = manager.db();
+
+        let task: Task = sqlx::query_as("SELECT * FROM tasks WHERE id = $1")
+            .bind(id)
+            .fetch_optional(db)
+            .await?
+            .ok_or(crate::model::error::Error::EntityNotFound { entity: "task", id })?;
+
+        Ok(task)
     }
 }
 
