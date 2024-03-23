@@ -21,4 +21,23 @@ impl UserService {
     {
         base::db::get::<Self, _>(ctx, manager, id).await
     }
+
+    pub async fn first_by_username<E>(
+        _ctx: &CTX,
+        manager: &ModelManager,
+        username: &str,
+    ) -> Result<Option<E>>
+    where
+        E: UserBy,
+    {
+        let db = manager.db();
+
+        let user = sqlb::select()
+            .table(Self::TABLE)
+            .and_where("name", "=", username)
+            .fetch_optional::<_, E>(db)
+            .await?;
+
+        Ok(user)
+    }
 }
