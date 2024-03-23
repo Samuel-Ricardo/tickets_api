@@ -100,6 +100,26 @@ mod tests {
 
         Ok(())
     }
+
+    #[serial]
+    #[tokio::test]
+    async fn test_delete_err_not_found() -> Result<()> {
+        let manager = _dev_utils::init_test_db().await;
+        let ctx = CTX::root_ctx();
+        let fx_id = 100;
+
+        let res = TaskService::delete(&ctx, &manager, fx_id).await;
+
+        assert!(
+            matches!(
+                res,
+                Err(crate::model::error::Error::EntityNotFound { entity, id })
+            ),
+            "EntityNotFound not Match",
+        );
+
+        Ok(())
+    }
 }
 
 // INFO: END REGION [tests]
