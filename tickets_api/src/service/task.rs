@@ -24,6 +24,10 @@ impl TaskService {
         base::db::list::<Self, Task>(ctx, manager).await
     }
 
+    pub async fn update(ctx: &CTX, manager: &ModelManager, id: i64, task_u: Task) -> Result<()> {
+        base::db::update::<Self, _>(ctx, manager, id, task_u).await
+    }
+
     pub async fn delete(_ctx: &CTX, manager: &ModelManager, id: i64) -> Result<()> {
         let db = manager.db();
 
