@@ -1,3 +1,4 @@
+mod base;
 mod config;
 mod controller;
 mod ctx;
