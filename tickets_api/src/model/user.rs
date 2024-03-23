@@ -18,3 +18,13 @@ pub struct UserForCreate {
 struct UserForInsert {
     name: String,
 }
+
+#[derive(Clone, FromRow, Fields, Debug)]
+pub struct UserForLogin {
+    pub id: i64,
+    pub name: String,
+
+    pub pwd: Option<String>,
+    pub pwd_salt: Uuid,
+    pub token_salt: Uuid,
+}
