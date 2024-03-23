@@ -20,14 +20,8 @@ impl TaskService {
         base::db::get::<Self, Task>(ctx, manager, id).await
     }
 
-    pub async fn list(_ctx: &CTX, manager: &ModelManager) -> Result<Vec<Task>> {
-        let db = manager.db();
-
-        let tasks: Vec<Task> = sqlx::query_as("SELECT * FROM tasks ORDER BY id")
-            .fetch_all(db)
-            .await?;
-
-        Ok(tasks)
+    pub async fn list(ctx: &CTX, manager: &ModelManager) -> Result<Vec<Task>> {
+        base::db::list::<Self, Task>(ctx, manager).await
     }
 
     pub async fn delete(_ctx: &CTX, manager: &ModelManager, id: i64) -> Result<()> {
