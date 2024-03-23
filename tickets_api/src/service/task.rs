@@ -93,6 +93,28 @@ mod tests {
 
     #[serial]
     #[tokio::test]
+    async fn test_list() -> Result<()> {
+        let manager = _dev_utils::init_test_db().await;
+        let ctx = CTX::root_ctx();
+        const titles: &[&str] = &["test_list_1", "test_list_2", "test_list_3"];
+
+        _dev_utils::seed::task(&ctx, &manager, titles).await?;
+
+        let tasks = TaskService::list(&ctx, &manager).await?;
+
+        let tasks: Vec<Task> = tasks
+            .into_iter()
+            .filter(|t| titles.contains(&t.title.as_str()))
+            .collect();
+
+        assert_eq!(tasks.len(), titles.len(), "tasks should be equal");
+        assert!(!tasks.is_empty(), "tasks should not be empty");
+
+        Ok(())
+    }
+
+    #[serial]
+    #[tokio::test]
     async fn test_get_err_not_found() -> Result<()> {
         let manager = _dev_utils::init_test_db().await;
         let ctx = CTX::root_ctx();

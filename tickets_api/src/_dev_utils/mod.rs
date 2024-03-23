@@ -4,7 +4,7 @@ use tracing::info;
 use crate::model::ModelManager;
 
 mod dev_db;
-mod seed;
+pub mod seed;
 
 pub async fn init_dev() {
     static INIT: OnceCell<()> = OnceCell::const_new();
