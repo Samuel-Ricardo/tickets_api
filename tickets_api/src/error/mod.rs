@@ -5,6 +5,8 @@ use axum::{
 use serde::Serialize;
 use tracing::debug;
 
+use crate::model;
+
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Clone, Debug, Serialize, strum_macros::AsRefStr)]
@@ -22,6 +24,15 @@ pub enum Error {
     ConfigMissingEnv(&'static str),
     CannotNewRootCtx,
     ConfigWrongFormat(&'static str),
+    LoginFailUsernameNotFound,
+
+    Model(model::error::Error),
+}
+
+impl From<model::error::Error> for Error {
+    fn from(err: model::error::Error) -> Self {
+        Self::Model(err)
+    }
 }
 
 impl core::fmt::Display for Error {
