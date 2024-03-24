@@ -29,6 +29,9 @@ pub enum Error {
     LoginFailPwdNotMathing { user_id: i64 },
     DateFailParse(String),
     FailtToB643UrlDecode,
+    TokenInvalidFormat,
+    TokenCannotDecodeIdent,
+    TokenCannotDecodeExp,
     //Model(model::error::Error),
 }
 
