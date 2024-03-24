@@ -4,6 +4,7 @@ use tracing::info;
 use crate::model::ModelManager;
 
 mod dev_db;
+pub mod key;
 pub mod seed;
 
 pub async fn init_dev() {
