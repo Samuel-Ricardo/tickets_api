@@ -5,7 +5,7 @@ use axum::{
 use serde::Serialize;
 use tracing::debug;
 
-use crate::model;
+use crate::{crypt, model};
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -32,7 +32,17 @@ pub enum Error {
     TokenInvalidFormat,
     TokenCannotDecodeIdent,
     TokenCannotDecodeExp,
+    TokenSignatureNotMatching,
+    TokenExpNotIso,
+    TokenExpired,
     //Model(model::error::Error),
+    Crypt(crypt::Error),
+}
+
+impl From<crypt::Error> for Error {
+    fn from(err: crypt::Error) -> Self {
+        Self::Crypt(err)
+    }
 }
 
 /*
