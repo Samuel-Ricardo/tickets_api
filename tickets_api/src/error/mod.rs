@@ -44,6 +44,8 @@ pub enum Error {
     CtxCreationFail(String),
     TokenNotInCookie,
     UnkownRpcMethod(String),
+    RpcMissingParams,
+    RpcFailJsonParams,
 }
 
 impl From<crypt::Error> for Error {

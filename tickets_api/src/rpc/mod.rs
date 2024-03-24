@@ -13,7 +13,7 @@ use crate::{
     model::{task::TaskForCreate, ModelManager},
     rpc::{
         model::ParamsForCreate,
-        task::{create_task, list_tasks},
+        task::{create_task, delete_task, list_tasks, update_task},
     },
     Error,
 };
@@ -23,6 +23,29 @@ use self::model::RpcRequest;
 mod model;
 pub mod router;
 mod task;
+
+macro_rules! exec_rpc_fn {
+    ($rpc_fn:expr, $ctx:expr, $manager:expr) => {
+        $rpc_fn($ctx, $manager)
+            .await
+            .map(to_value)
+            .unwrap()
+            .unwrap()
+    };
+
+    ($rpc_fn:expr, $ctx:expr, $manager:expr, $params:expr) => {{
+        let data = $params.ok_or(Error::RpcMissingParams);
+        let data = from_value(data.unwrap())
+            .map_err(|_| Error::RpcFailJsonParams)
+            .unwrap();
+
+        $rpc_fn($ctx, $manager, data)
+            .await
+            .map(to_value)
+            .unwrap()
+            .unwrap()
+    }};
+}
 
 pub async fn rpc_handler(
     State(manager): State<ModelManager>,
@@ -34,25 +57,10 @@ pub async fn rpc_handler(
     debug!("{:12} - rpc handler - method: {method}", "HANDLER");
 
     let result_json: Value = match method.as_str() {
-        "create_task" => {
-            let data = params.ok_or(Error::RpcMissingParams);
-            let data = from_value(data.unwrap())
-                .map_err(|_| Error::RpcFailJsonParams)
-                .unwrap();
-
-            create_task(ctx, manager, ParamsForCreate { data })
-                .await
-                .map(to_value)
-                .unwrap()
-                .unwrap()
-        }
-        "list_tasks" => list_tasks(ctx, manager)
-            .await
-            .map(to_value)
-            .unwrap()
-            .unwrap(),
-        "update_task" => todo!(),
-        "delete_task" => todo!(),
+        "create_task" => exec_rpc_fn!(create_task, ctx, manager, params),
+        "list_tasks" => exec_rpc_fn!(list_tasks, ctx, manager),
+        "update_task" => exec_rpc_fn!(update_task, ctx, manager, params),
+        "delete_task" => exec_rpc_fn!(delete_task, ctx, manager, params),
         _ => return Err(Error::UnkownRpcMethod(method)).unwrap(),
     };
 
