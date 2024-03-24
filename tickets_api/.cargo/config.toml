@@ -21,7 +21,9 @@ RUST_LOG = "tickets_api=debug"
 
 SERVICE_DB_URL = "postgresql://app_user:dev_only_pwd@localhost:5432/app_db"
 
-SERVICE_PWD_KEY = "dev_only_pwd"
+SERVICE_PWD_KEY = "ZGV2X29ubHlfcHdkX2tleQ=="
+SERVICE_TOKEN_KEY = "ZGV2X29ubHlfdG9rZW5fa2V5"
+SERVICE_TOKEN_DURATION_SEC = "1800"            # 30 minutes
 
 ## -- ConfigMap
 
