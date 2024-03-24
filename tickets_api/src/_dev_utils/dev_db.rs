@@ -55,7 +55,7 @@ pub async fn init_dev_deb() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap()
         .unwrap();
 
-    UserService::update_pwd(&ctx, &manager, demo1_user.id, DEMO_PWD).await?;
+    UserService::update_pwd(&ctx, &manager, demo1_user.id, DEMO_PWD).await;
     info!(
         "{:<12} - init_dev_deb: done [set_demo1_user]",
         "FOR_DEV_ONLY"

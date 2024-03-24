@@ -4,13 +4,26 @@ use tower_cookies::{Cookie, Cookies};
 use tracing::debug;
 
 use crate::{
-    crypt::{pwd, EncryptContent},
+    crypt::{pwd, token::generate_web_token, EncryptContent},
     ctx::CTX,
     error::{Error, Result},
     middleware::auth::AUTH_TOKEN,
     model::{login::LoginPayload, user::UserForLogin, ModelManager},
     service::user::UserService,
 };
+
+fn _set_token_cookei(cookies: &Cookies, user: &str, salt: &str) -> Result<()> {
+    let token = generate_web_token(user, salt)?;
+
+    let mut cookie = Cookie::new(AUTH_TOKEN, token.to_string());
+
+    cookie.set_http_only(true);
+    cookie.set_path("/");
+
+    cookies.add(cookie);
+
+    Ok(())
+}
 
 pub async fn api_login_handler(
     State(manager): State<ModelManager>,
@@ -45,10 +58,7 @@ pub async fn api_login_handler(
     )
     .map_err(|_| Error::LoginFailPwdNotMathing { user_id })?;
 
-    let mut cookie = Cookie::new(AUTH_TOKEN, "user-1.exp.sign");
-    cookie.set_http_only(true);
-    cookie.set_path("/");
-    cookies.add(cookie);
+    _set_token_cookei(&cookies, &user.name, &user.token_salt.to_string())?;
 
     let body = Json(json!({
         "result": {

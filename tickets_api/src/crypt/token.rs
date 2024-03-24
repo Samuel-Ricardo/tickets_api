@@ -3,7 +3,10 @@ use std::str::FromStr;
 
 use crate::config;
 use crate::util::base64::{b64u_decode, b64u_encode};
+use crate::util::time::{now_utc, parse_utc};
 use crate::{Error, Result};
+
+use super::encrypt_into_b64url;
 
 pub struct Token {
     pub ident: String,
@@ -15,12 +18,34 @@ fn _generate_token(ident: &str, duration_sec: f64, salt: &str, key: &[u8]) -> Re
     todo!()
 }
 
-fn _validate_token_sign_and_exp(origin_token: &str, salt: &str, key: &[u8]) -> Result<Token> {
-    todo!()
+fn _validate_token_sign_and_exp(origin_token: &Token, salt: &str, key: &[u8]) -> Result<()> {
+    let new_sign_b64u =
+        _token_sign_into_b64url(&origin_token.ident, &origin_token.exp, salt, key).unwrap();
+
+    if new_sign_b64u != origin_token.sign_b64u {
+        return Err(Error::TokenSignatureNotMatching);
+    }
+
+    let origin_exp = parse_utc(&origin_token.exp).map_err(|_| Error::TokenExpNotIso)?;
+
+    if origin_exp < now_utc() {
+        return Err(Error::TokenExpired);
+    }
+
+    Ok(())
 }
 
 fn _token_sign_into_b64url(ident: &str, exp: &str, salt: &str, key: &[u8]) -> Result<String> {
-    todo!()
+    let content = format!("{}.{}", b64u_encode(ident), b64u_encode(exp));
+    let signature = encrypt_into_b64url(
+        key,
+        &super::EncryptContent {
+            content,
+            salt: salt.to_string(),
+        },
+    );
+
+    Ok(signature.unwrap())
 }
 
 pub fn generate_web_token(user: &str, salt: &str) -> Result<Token> {
@@ -30,7 +55,7 @@ pub fn generate_web_token(user: &str, salt: &str) -> Result<Token> {
 
 pub fn validate_web_token(origin_token: &Token, salt: &str) -> Result<()> {
     let config = &config();
-    _validate_token_sign_and_exp(&origin_token.ident, salt, &config.TOKEN_KEY)?;
+    _validate_token_sign_and_exp(&origin_token, salt, &config.TOKEN_KEY)?;
 
     Ok(())
 }
