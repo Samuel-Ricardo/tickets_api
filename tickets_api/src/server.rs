@@ -5,11 +5,11 @@ use tracing::info;
 
 use crate::controller::ticket::TicketController;
 use crate::error::Result;
-use crate::middleware::auth::mw_ctx_resolver;
+use crate::middleware::auth::{mw_ctx_resolver, mw_require_auth};
 use crate::middleware::response::main_response_mapper;
 use crate::model::ModelManager;
 use crate::router::{self, hello_router, login, tickets};
-use crate::{_dev_utils, observability};
+use crate::{_dev_utils, observability, rpc};
 
 pub async fn startup() -> Result<()> {
     let _ = observability::startup();
@@ -18,10 +18,14 @@ pub async fn startup() -> Result<()> {
 
     let controller = TicketController::new().await.unwrap();
 
+    let rpc_r =
+        rpc::router::main(manager.clone()).route_layer(middleware::from_fn(mw_require_auth));
+
     let routes: Router = Router::new()
         .merge(hello_router())
         .merge(login::routes(manager.clone()))
-        .nest("/api", tickets::routes(controller.clone()))
+        //        .nest("/api", tickets::routes(controller.clone()))
+        .nest("/api", rpc_r)
         .layer(middleware::map_response(main_response_mapper))
         .layer(middleware::from_fn_with_state(
             manager.clone(),

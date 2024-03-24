@@ -1,4 +1,5 @@
 use axum::{
+    body::Body,
     extract::State,
     response::{IntoResponse, Response},
     Json,
@@ -12,14 +13,14 @@ use crate::{ctx::CTX, model::ModelManager, rpc::task::list_tasks, Error};
 use self::model::RpcRequest;
 
 mod model;
-mod router;
+pub mod router;
 mod task;
 
 pub async fn rpc_handler(
     State(manager): State<ModelManager>,
     ctx: CTX,
     Json(rpc_req): Json<RpcRequest>,
-) -> Response {
+) -> Response<Body> {
     let RpcRequest { id, method, params } = rpc_req;
 
     debug!("{:12} - rpc handler - method: {method}", "HANDLER");
