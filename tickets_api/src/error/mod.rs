@@ -25,15 +25,19 @@ pub enum Error {
     CannotNewRootCtx,
     ConfigWrongFormat(&'static str),
     LoginFailUsernameNotFound,
-
-    Model(model::error::Error),
+    LoginFailUserHashNoPwd { user_id: i64 },
+    LoginFailPwdNotMathing { user_id: i64 },
+    DateFailParse(String),
+    //Model(model::error::Error),
 }
 
+/*
 impl From<model::error::Error> for Error {
     fn from(err: model::error::Error) -> Self {
         Self::Model(err)
     }
 }
+*/
 
 impl core::fmt::Display for Error {
     fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
