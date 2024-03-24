@@ -78,6 +78,27 @@ pub async fn api_login_handler(
 }
 
 #[derive(Debug, Deserialize)]
-struct LogoffPayload {
-    logff: bool,
+pub struct LogoffPayload {
+    pub logff: bool,
+}
+
+pub async fn api_logoff_handler(
+    cookies: Cookies,
+    Json(payload): Json<LogoffPayload>,
+) -> Result<Json<Value>> {
+    debug!(" {:<12} - api_logoff", "HANDLER");
+
+    let should_logoff = payload.logff;
+
+    if should_logoff {
+        remove_token_cookies(&cookies)?;
+    }
+
+    let body = Json(json!({
+        "result": {
+        "logged off": should_logoff
+        }
+    }));
+
+    Ok(body)
 }
