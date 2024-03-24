@@ -2,6 +2,12 @@ use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use std::{fs, path::PathBuf, time::Duration};
 use tracing::info;
 
+use crate::{
+    ctx::CTX,
+    model::{user::User, ModelManager},
+    service::user::UserService,
+};
+
 type DB = Pool<Postgres>;
 
 //  NOTE: Hardcided to prevent deployed system db update
@@ -12,6 +18,8 @@ const PG_DEV_APP_URL: &str = "postgres://app_user:dev_only_pwd@db_test:5432/app_
 
 const SQL_RECREATE_DB: &str = "sql/dev_initial/00-recreate-db.sql";
 const SQL_DIR: &str = "sql/dev_initial";
+
+const DEMO_PWD: &str = "welcome";
 
 pub async fn init_dev_deb() -> Result<(), Box<dyn std::error::Error>> {
     info!("{:<12} - init_dev_deb", "FOR_DEV_ONLY");
@@ -38,6 +46,20 @@ pub async fn init_dev_deb() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     }
+
+    let manager = ModelManager::new().await.unwrap();
+    let ctx = CTX::root_ctx();
+
+    let demo1_user: User = UserService::first_by_username(&ctx, &manager, "demo1")
+        .await
+        .unwrap()
+        .unwrap();
+
+    UserService::update_pwd(&ctx, &manager, demo1_user.id, DEMO_PWD).await?;
+    info!(
+        "{:<12} - init_dev_deb: done [set_demo1_user]",
+        "FOR_DEV_ONLY"
+    );
 
     Ok(())
 }
