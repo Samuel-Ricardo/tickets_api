@@ -40,6 +40,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 strum_macros = "0.26"
 uuid = { version = "1", features = ["v4", "fast-rng", "serde"] }
 lazy-regex = "3"
+time = "0.3"
 
 [dev-dependencies]
 anyhow = "1"
