@@ -9,6 +9,7 @@ mod middleware;
 mod model;
 mod observability;
 mod router;
+mod rpc;
 mod server;
 mod service;
 mod util;
