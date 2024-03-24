@@ -1,9 +1,10 @@
 use crate::{
     base::{self, db::DbBmc},
+    crypt::{pwd, EncryptContent},
     ctx::CTX,
     model::{
         error::Result,
-        user::{User, UserBy},
+        user::{User, UserBy, UserForLogin},
         ModelManager,
     },
 };
@@ -39,6 +40,30 @@ impl UserService {
             .await?;
 
         Ok(user)
+    }
+
+    pub async fn update_pwd(
+        ctx: &CTX,
+        manager: &ModelManager,
+        id: i64,
+        pwd_clear: &str,
+    ) -> Result<()> {
+        let db = manager.db();
+
+        let user: UserForLogin = Self::get(ctx, manager, id).await?;
+        let pwd = pwd::encrypt_pwd(&EncryptContent {
+            content: pwd_clear.to_string(),
+            salt: user.pwd_salt.to_string(),
+        })?;
+
+        sqlb::update()
+            .table(Self::TABLE)
+            .and_where("id", "=", id)
+            .data(vec![("pwd", pwd.to_string()).into()])
+            .exec(db)
+            .await?;
+
+        Ok(())
     }
 }
 

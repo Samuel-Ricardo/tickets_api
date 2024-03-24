@@ -1,4 +1,4 @@
-use axum::Json;
+use axum::{extract::State, Json};
 use serde_json::{json, Value};
 use tower_cookies::{Cookie, Cookies};
 use tracing::debug;
@@ -6,10 +6,11 @@ use tracing::debug;
 use crate::{
     error::{Error, Result},
     middleware::auth::AUTH_TOKEN,
-    model::login::LoginPayload,
+    model::{login::LoginPayload, ModelManager},
 };
 
 pub async fn api_login_handler(
+    State(manager): State<ModelManager>,
     cookies: Cookies,
     payload: Json<LoginPayload>,
 ) -> Result<Json<Value>> {

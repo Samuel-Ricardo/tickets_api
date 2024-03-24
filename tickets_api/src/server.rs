@@ -14,13 +14,13 @@ use crate::{_dev_utils, observability};
 pub async fn startup() -> Result<()> {
     let _ = observability::startup();
     let _ = _dev_utils::init_dev();
-    let manager = ModelManager::new().await;
+    let manager = ModelManager::new().await.unwrap();
 
     let controller = TicketController::new().await.unwrap();
 
     let routes: Router = Router::new()
         .merge(hello_router())
-        .merge(login::routes())
+        .merge(login::routes(manager.clone()))
         .nest("/api", tickets::routes(controller.clone()))
         .layer(middleware::map_response(main_response_mapper))
         .layer(middleware::from_fn_with_state(
