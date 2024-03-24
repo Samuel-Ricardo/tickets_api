@@ -25,6 +25,7 @@ sqlb = "0.4"
 rand = "0.8"
 hmac = "0.12"
 sha2 = "0.10"
+base64-url = "2.0"
 # -- WEB -- #
 tower-http = { version = "0.5", features = ["fs"] }
 tower-cookies = "0.10"
