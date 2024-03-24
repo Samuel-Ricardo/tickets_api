@@ -21,6 +21,9 @@ sqlx = { version = "0.7", features = [
   "time",
 ] }
 sqlb = "0.4"
+# -- CRYPT -- #
+rand = "0.8"
+
 # -- WEB -- #
 tower-http = { version = "0.5", features = ["fs"] }
 tower-cookies = "0.10"
