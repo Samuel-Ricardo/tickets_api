@@ -24,7 +24,7 @@ pub async fn startup() -> Result<()> {
         .nest("/api", tickets::routes(controller.clone()))
         .layer(middleware::map_response(main_response_mapper))
         .layer(middleware::from_fn_with_state(
-            controller.clone(),
+            manager.clone(),
             mw_ctx_resolver,
         ))
         .layer(CookieManagerLayer::new())

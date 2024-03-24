@@ -37,6 +37,12 @@ pub enum Error {
     TokenExpired,
     //Model(model::error::Error),
     Crypt(crypt::Error),
+    CtxExtractFail,
+    UserNotFound,
+    ServiceAccessError,
+    ValidationFail,
+    CtxCreationFail(String),
+    TokenNotInCookie,
 }
 
 impl From<crypt::Error> for Error {

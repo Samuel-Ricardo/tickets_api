@@ -1,4 +1,5 @@
 use axum::{extract::State, Json};
+use serde::Deserialize;
 use serde_json::{json, Value};
 use tower_cookies::{Cookie, Cookies};
 use tracing::debug;
@@ -12,7 +13,7 @@ use crate::{
     service::user::UserService,
 };
 
-fn _set_token_cookei(cookies: &Cookies, user: &str, salt: &str) -> Result<()> {
+pub fn set_token_cookies(cookies: &Cookies, user: &str, salt: &str) -> Result<()> {
     let token = generate_web_token(user, salt)?;
 
     let mut cookie = Cookie::new(AUTH_TOKEN, token.to_string());
@@ -22,6 +23,13 @@ fn _set_token_cookei(cookies: &Cookies, user: &str, salt: &str) -> Result<()> {
 
     cookies.add(cookie);
 
+    Ok(())
+}
+
+pub fn remove_token_cookies(cookies: &Cookies) -> Result<()> {
+    let mut cookie = Cookie::named(AUTH_TOKEN);
+    cookie.set_path("/");
+    cookies.remove(cookie);
     Ok(())
 }
 
@@ -58,7 +66,7 @@ pub async fn api_login_handler(
     )
     .map_err(|_| Error::LoginFailPwdNotMathing { user_id })?;
 
-    _set_token_cookei(&cookies, &user.name, &user.token_salt.to_string())?;
+    set_token_cookies(&cookies, &user.name, &user.token_salt.to_string())?;
 
     let body = Json(json!({
         "result": {
@@ -67,4 +75,9 @@ pub async fn api_login_handler(
     }));
 
     Ok(body)
+}
+
+#[derive(Debug, Deserialize)]
+struct LogoffPayload {
+    logff: bool,
 }

@@ -5,8 +5,13 @@ use lazy_regex::regex_captures;
 use tower_cookies::{Cookie, Cookies};
 use tracing::debug;
 
+use crate::controller::login::set_token_cookies;
 use crate::controller::ticket::TicketController;
+use crate::crypt::token::{validate_web_token, Token};
 use crate::error::Error;
+use crate::model::user::UserForAuth;
+use crate::model::ModelManager;
+use crate::service::user::UserService;
 use crate::{ctx::CTX, error::Result};
 
 use async_trait::async_trait;
@@ -22,30 +27,42 @@ pub async fn mw_require_auth(ctx: Result<CTX>, req: Request<Body>, next: Next) -
 }
 
 pub async fn mw_ctx_resolver(
-    _mc: State<TicketController>,
+    //    controller: State<TicketController>,
+    manager: State<ModelManager>,
     cookies: Cookies,
     mut req: Request<Body>,
     next: Next,
 ) -> Result<Response> {
     debug!(" {:<12} - mw_ctx_resolver", "MIDDLEWARE");
 
-    let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
+    let ctx_result = _ctx_resolve(manager, &cookies).await;
 
-    let result_ctx = match auth_token
-        .ok_or(Error::AuthFailNoAuthTokenCookie)
-        .and_then(parse_token)
-    {
-        Ok((user_id, _exp, _sign)) => Ok(CTX::new(user_id)),
-        Err(e) => Err(e),
-    };
-
-    if result_ctx.is_err() && !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie)) {
-        cookies.remove(Cookie::from(AUTH_TOKEN));
+    if ctx_result.is_err() && !matches!(ctx_result, Err(Error::TokenNotInCookie)) {
+        cookies.remove(Cookie::named(AUTH_TOKEN));
     }
 
-    req.extensions_mut().insert(result_ctx);
-
     Ok(next.run(req).await)
+}
+
+async fn _ctx_resolve(manager: State<ModelManager>, cookies: &Cookies) -> Result<CTX> {
+    let token = cookies
+        .get(AUTH_TOKEN)
+        .map(|c| c.value().to_string())
+        .ok_or(Error::CtxExtractFail)?;
+
+    let token: Token = token.parse().map_err(|_| Error::AuthFailTokenWrongFormat)?;
+
+    let user: UserForAuth =
+        UserService::first_by_username(&CTX::root_ctx(), &manager, &token.ident)
+            .await
+            .map_err(|_| Error::ServiceAccessError)?
+            .ok_or(Error::UserNotFound)?;
+
+    validate_web_token(&token, &user.token_salt.to_string()).map_err(|_| Error::ValidationFail)?;
+
+    set_token_cookies(cookies, &user.name, &user.token_salt.to_string())?;
+
+    Ok(CTX::new(user.id as u64).map_err(|ex| Error::CtxCreationFail(ex.to_string()))?)
 }
 
 #[async_trait]
@@ -60,6 +77,7 @@ impl<S: Send + Sync> FromRequestParts<S> for CTX {
             .get::<Result<CTX>>()
             .ok_or(Error::AuthFailCtxNotInRequestExt)?
             .clone()
+        //            .map_err(Error::CtxExtractFail)
     }
 }
 
