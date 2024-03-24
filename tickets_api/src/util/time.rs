@@ -8,6 +8,7 @@ pub fn now_utc() -> OffsetDateTime {
 }
 
 pub fn format_time(time: OffsetDateTime) -> String {
+    //TODO: Need to check if safe;
     time.format(&Rfc3339).unwrap()
 }
 

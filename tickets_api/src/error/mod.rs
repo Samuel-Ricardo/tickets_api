@@ -28,6 +28,7 @@ pub enum Error {
     LoginFailUserHashNoPwd { user_id: i64 },
     LoginFailPwdNotMathing { user_id: i64 },
     DateFailParse(String),
+    FailtToB643UrlDecode,
     //Model(model::error::Error),
 }
 
