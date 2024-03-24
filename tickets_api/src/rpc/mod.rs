@@ -4,11 +4,19 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use serde_json::{json, to_value, Value};
+use serde_json::{from_value, json, to_value, Value};
 
 use tracing::debug;
 
-use crate::{ctx::CTX, model::ModelManager, rpc::task::list_tasks, Error};
+use crate::{
+    ctx::CTX,
+    model::{task::TaskForCreate, ModelManager},
+    rpc::{
+        model::ParamsForCreate,
+        task::{create_task, list_tasks},
+    },
+    Error,
+};
 
 use self::model::RpcRequest;
 
@@ -20,13 +28,24 @@ pub async fn rpc_handler(
     State(manager): State<ModelManager>,
     ctx: CTX,
     Json(rpc_req): Json<RpcRequest>,
-) -> Response<Body> {
+) -> Response {
     let RpcRequest { id, method, params } = rpc_req;
 
     debug!("{:12} - rpc handler - method: {method}", "HANDLER");
 
     let result_json: Value = match method.as_str() {
-        "create_task" => todo!(),
+        "create_task" => {
+            let data = params.ok_or(Error::RpcMissingParams);
+            let data = from_value(data.unwrap())
+                .map_err(|_| Error::RpcFailJsonParams)
+                .unwrap();
+
+            create_task(ctx, manager, ParamsForCreate { data })
+                .await
+                .map(to_value)
+                .unwrap()
+                .unwrap()
+        }
         "list_tasks" => list_tasks(ctx, manager)
             .await
             .map(to_value)
