@@ -21,6 +21,7 @@ pub enum Error {
     TicketDeleteFailIdNotFound { id: u64 },
     ConfigMissingEnv(&'static str),
     CannotNewRootCtx,
+    ConfigWrongFormat(&'static str),
 }
 
 impl core::fmt::Display for Error {

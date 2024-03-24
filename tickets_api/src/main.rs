@@ -1,6 +1,7 @@
 mod base;
 mod config;
 mod controller;
+mod crypt;
 mod ctx;
 mod error;
 mod log;
