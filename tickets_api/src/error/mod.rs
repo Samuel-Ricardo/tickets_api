@@ -43,6 +43,7 @@ pub enum Error {
     ValidationFail,
     CtxCreationFail(String),
     TokenNotInCookie,
+    UnkownRpcMethod(String),
 }
 
 impl From<crypt::Error> for Error {
