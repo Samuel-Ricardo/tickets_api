@@ -11,6 +11,7 @@ mod observability;
 mod router;
 mod server;
 mod service;
+mod util;
 
 /* -- #[cfg(test)] | Commented during early development -- */
 pub mod _dev_utils;
