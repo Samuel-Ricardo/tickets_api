@@ -2,7 +2,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
-    //TODO: implement
+    KeyFailHmac,
+    PwdNotMatching,
 }
 
 impl core::fmt::Display for Error {
