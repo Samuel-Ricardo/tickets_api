@@ -1,23 +1,34 @@
 use axum::{middleware, Router};
 use tokio::net::TcpListener;
 use tower_cookies::CookieManagerLayer;
+use tracing::info;
 
 use crate::controller::ticket::TicketController;
 use crate::error::Result;
-use crate::middleware::auth::mw_ctx_resolver;
+use crate::middleware::auth::{mw_ctx_resolver, mw_require_auth};
 use crate::middleware::response::main_response_mapper;
+use crate::model::ModelManager;
 use crate::router::{self, hello_router, login, tickets};
+use crate::{_dev_utils, observability, rpc};
 
 pub async fn startup() -> Result<()> {
+    let _ = observability::startup();
+    let _ = _dev_utils::init_dev();
+    let manager = ModelManager::new().await.unwrap();
+
     let controller = TicketController::new().await.unwrap();
+
+    let rpc_r =
+        rpc::router::main(manager.clone()).route_layer(middleware::from_fn(mw_require_auth));
 
     let routes: Router = Router::new()
         .merge(hello_router())
-        .merge(login::routes())
-        .nest("/api", tickets::routes(controller.clone()))
+        .merge(login::routes(manager.clone()))
+        //        .nest("/api", tickets::routes(controller.clone()))
+        .nest("/api", rpc_r)
         .layer(middleware::map_response(main_response_mapper))
         .layer(middleware::from_fn_with_state(
-            controller.clone(),
+            manager.clone(),
             mw_ctx_resolver,
         ))
         .layer(CookieManagerLayer::new())
@@ -27,7 +38,7 @@ pub async fn startup() -> Result<()> {
         .await
         .expect("Failed to bind port 8080");
 
-    println!("Server running on 0.0.0.0:8080");
+    info!("Server running on 0.0.0.0:8080");
     axum::serve(listener, routes.into_make_service())
         .await
         .unwrap();

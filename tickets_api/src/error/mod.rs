@@ -3,6 +3,9 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use serde::Serialize;
+use tracing::debug;
+
+use crate::{crypt, model};
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -18,7 +21,46 @@ pub enum Error {
 
     // -- Model errors.
     TicketDeleteFailIdNotFound { id: u64 },
+    ConfigMissingEnv(&'static str),
+    CannotNewRootCtx,
+    ConfigWrongFormat(&'static str),
+    LoginFailUsernameNotFound,
+    LoginFailUserHashNoPwd { user_id: i64 },
+    LoginFailPwdNotMathing { user_id: i64 },
+    DateFailParse(String),
+    FailtToB643UrlDecode,
+    TokenInvalidFormat,
+    TokenCannotDecodeIdent,
+    TokenCannotDecodeExp,
+    TokenSignatureNotMatching,
+    TokenExpNotIso,
+    TokenExpired,
+    //Model(model::error::Error),
+    Crypt(crypt::Error),
+    CtxExtractFail,
+    UserNotFound,
+    ServiceAccessError,
+    ValidationFail,
+    CtxCreationFail(String),
+    TokenNotInCookie,
+    UnkownRpcMethod(String),
+    RpcMissingParams,
+    RpcFailJsonParams,
 }
+
+impl From<crypt::Error> for Error {
+    fn from(err: crypt::Error) -> Self {
+        Self::Crypt(err)
+    }
+}
+
+/*
+impl From<model::error::Error> for Error {
+    fn from(err: model::error::Error) -> Self {
+        Self::Model(err)
+    }
+}
+*/
 
 impl core::fmt::Display for Error {
     fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
@@ -30,7 +72,7 @@ impl std::error::Error for Error {}
 
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
-        print!("{:<12} - {self:?}", "INTO_RES");
+        debug!("{:<12} - {self:?}", "INTO_RES");
 
         let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
         response.extensions_mut().insert(self);

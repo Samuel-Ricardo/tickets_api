@@ -3,24 +3,47 @@ name = "tickets_api"
 version = "0.1.0"
 edition = "2021"
 
+# cargo watch -q -c -w src/ -w .cargo/ -x "run"
+# cargo watch -q -c -w examples/ -x "run --example simple"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 axum = "0.7.4"
 async-trait = "0.1"
-# -- WEB
+# -- Database -- #
+sqlx = { version = "0.7", features = [
+  "macros",
+  "runtime-tokio-rustls",
+  "postgres",
+  "uuid",
+  "time",
+] }
+sqlb = "0.4"
+# -- CRYPT -- #
+rand = "0.8"
+hmac = "0.12"
+sha2 = "0.10"
+base64-url = "2.0"
+# -- WEB -- #
 tower-http = { version = "0.5", features = ["fs"] }
 tower-cookies = "0.10"
-# -- Serde
+# -- Serde -- #
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_with = "3"
+# -- Tracing -- #
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # -- Others
 strum_macros = "0.26"
-uuid = { version = "1", features = ["v4", "fast-rng"] }
+uuid = { version = "1", features = ["v4", "fast-rng", "serde"] }
 lazy-regex = "3"
+time = "0.3"
 
 [dev-dependencies]
 anyhow = "1"
+httpc-test = "0.1"
+serial_test = "3"
